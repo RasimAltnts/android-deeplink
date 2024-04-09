@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -19,6 +20,11 @@ class MainActivity : ComponentActivity() {
 
         val action: String? = intent?.action
         val data: Uri? = intent?.data
+        var splitPath: List<String>? = null
+        
+        data?.let {uri: Uri ->  
+            splitPath = uri.toString().split("/")
+        }
 
         setContent {
             DeeplinkTheme {
@@ -27,7 +33,16 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    splitPath?.let { pathList ->
+                        pathList.last { lastItem ->
+                            when(lastItem) {
+                                "FirstPage" -> FirstPage(title = lastItem)
+                                "SecondPage" -> SecondPage(title = lastItem)
+                                else -> InvalidPage()
+                            }
+                            true
+                        }
+                    }
                 }
             }
         }
@@ -35,17 +50,22 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun FirstPage(title: String) {
+    Box(modifier = Modifier.fillMaxSize(1f)) {
+        Text(text = title)
+    }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    DeeplinkTheme {
-        Greeting("Android")
+fun SecondPage(title: String) {
+    Box(modifier = Modifier.fillMaxSize(1f)) {
+        Text(text = title)
+    }
+}
+
+@Composable
+fun InvalidPage() {
+    Box(modifier = Modifier.fillMaxSize(1f)) {
+        Text(text = "Invalid Path")
     }
 }
